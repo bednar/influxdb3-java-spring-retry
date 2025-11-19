@@ -1,0 +1,26 @@
+# Maven build output
+target/
+
+# IDE configuration files
+.idea/
+.classpath
+.project
+.settings/
+*.iml
+
+# OS files
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Generated at runtime
+*.hprof
+heapdump.*
+
+# Node modules (if added later)
+node_modules/
+
+# Mac quarantine attribute files
+__MACOSX/

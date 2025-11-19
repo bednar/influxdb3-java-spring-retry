@@ -1,0 +1,23 @@
+server:
+  # You can override the port by exporting SERVER_PORT or passing -Dserver.port=....
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    root: INFO
+
+influxdb:
+  # InfluxDB connection properties. These must be provided via environment
+  # variables or system properties. See README.md for details.
+  url: ${INFLUXDB_URL:}
+  token: ${INFLUXDB_TOKEN:}
+  database: ${INFLUXDB_DATABASE:}
+  # Optional read/write timeout overrides in milliseconds.
+  read-timeout: ${INFLUXDB_READ_TIMEOUT:90000}
+  write-timeout: ${INFLUXDB_WRITE_TIMEOUT:90000}
+
+retry:
+  # Retry configuration. Can be tuned via environment variables.
+  initialInterval: ${RETRY_INITIAL_INTERVAL:1000}
+  multiplier: ${RETRY_MULTIPLIER:2.0}
+  maxInterval: ${RETRY_MAX_INTERVAL:30000}
