@@ -34,7 +34,7 @@ import java.time.temporal.ChronoUnit;
 @Configuration
 @EnableRetry
 @Slf4j
-public class InfluxDbConfig {
+public class AppConfig {
 
     @Value("${influxdb.url}")
     private String host;

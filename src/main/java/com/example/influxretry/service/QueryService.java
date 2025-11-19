@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * Service that encapsulates retry logic for executing SQL queries against InfluxDB.
  * <p>
  * The {@link RetryTemplate} provided by Spring Retry ensures that transient errors
- * are retried according to the policies defined in {@code InfluxDbConfig}. Each call
+ * are retried according to the policies defined in {@code AppConfig}. Each call
  * measures the time taken and logs the result for later analysis.
  */
 @Service
