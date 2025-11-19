@@ -14,7 +14,7 @@ This project demonstrates how to integrate the [influxdb3‑java](https://github
 
 ## Requirements
 
-- Java 17 or later.
+- **Java 17 (tested)** or later. This project is built and tested with JDK 17 (for example Eclipse Temurin / OpenJDK).
 - Maven (or use the Maven Wrapper provided by your IDE).
 - An InfluxDB 3 instance.  The database URL, token and name must be supplied as environment variables or system properties (see below).
 
@@ -77,7 +77,7 @@ The response will be a JSON array where each element represents one row returned
 To generate repeated load against the endpoint you can use the provided script:
 
 ```bash
-bash scripts/stress_test.sh http://localhost:8080/api/query "SELECT time, location, value FROM temperature LIMIT 10"
+/bin/zsh scripts/stress_test.sh "http://localhost:8080/api/query" "SELECT time, location, value FROM temperature LIMIT 10"
 ```
 
 It calls the endpoint once per second by default.  Set the `DELAY` environment variable to change the interval.

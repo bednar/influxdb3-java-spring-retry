@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Simple script to repeatedly invoke the query endpoint.
 # Usage: ./stress_test.sh [url] [query]
