@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Entry point for the Spring Boot application.
- *
+ * <p>
  * This class uses {@link SpringBootApplication} to trigger component scanning
  * and auto‑configuration.
  */
