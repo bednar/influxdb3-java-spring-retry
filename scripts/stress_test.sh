@@ -15,7 +15,11 @@ DELAY=${DELAY:-1}
 echo "Calling $URL with query: $QUERY every ${DELAY}s"
 
 while true; do
+  # print timestamp (ISO-like) before request (macOS-compatible)
+  printf '%s ' "$(date '+%Y-%m-%dT%H:%M:%S%z')"
   # Use --data-urlencode to ensure the query parameter is properly escaped
   curl -s -G --data-urlencode "q=${QUERY}" "${URL}" || true
+  # print newline after the call to separate entries
+  printf '\n'
   sleep "$DELAY"
 done

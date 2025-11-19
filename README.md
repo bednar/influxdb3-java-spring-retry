@@ -9,7 +9,7 @@ This project demonstrates how to integrate the [influxdb3‑java](https://github
 - **Spring Retry** – a `RetryTemplate` configured with an `ExceptionClassifierRetryPolicy` classifies exceptions and only retries on transient network or server errors.  An `ExponentialBackOffPolicy` controls the delay between retry attempts.
 - **Lombok** – annotations like `@RequiredArgsConstructor` and `@Slf4j` reduce boiler‑plate.
 - **Configuration by annotations** – a `@Configuration` class declares beans for the InfluxDB client and retry template using `@Bean`.  No XML configuration is required.
-- **REST Controller** – a simple `@RestController` exposes the `/api/query` endpoint.  A `q` request parameter supplies the SQL to execute and the endpoint returns a JSON array of rows.  Each row is itself a JSON array mirroring the `Object[]` returned by the client.
+- **REST Controller** – a simple `@RestController` exposes the `/api/query` endpoint.  A `q` request parameter supplies the SQL to execute and the endpoint returns a number of rows. 
 - **Stress test script** – a POSIX shell script under `scripts/` repeatedly calls the REST endpoint.  It can be used to generate load and observe memory behaviour.
 
 ## Requirements
@@ -70,7 +70,7 @@ Example:
 curl -G --data-urlencode "q=SELECT time,location,value FROM temperature LIMIT 10" http://localhost:8080/api/query
 ```
 
-The response will be a JSON array where each element represents one row returned by the query.  The ordering of columns corresponds to the query’s projection list.
+The response will be a number of rows.
 
 ## Stress Test Script
 

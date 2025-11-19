@@ -1,14 +1,15 @@
 package com.example.influxretry.service;
 
-import com.influxdb.v3.client.InfluxDBClient;
+import java.util.List;
+import java.util.stream.Stream;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.influxdb.v3.client.InfluxDBClient;
+import com.influxdb.v3.client.PointValues;
 
 /**
  * Service that encapsulates retry logic for executing SQL queries against InfluxDB.
@@ -33,18 +34,27 @@ public class QueryService {
      * @param sql SQL query to execute
      * @return list of rows returned by the query
      */
-    public List<Object[]> queryWithRetry(String sql) {
+    public List<PointValues> queryWithRetry(String sql) {
         return retryTemplate.execute(context -> {
             long start = System.currentTimeMillis();
-            String status = "FAILURE";
-            try (Stream<Object[]> stream = influxDBClient.query(sql)) {
-                List<Object[]> results = stream.collect(Collectors.toList());
-                status = "SUCCESS";
-                return results;
-            } finally {
+            try (Stream<PointValues> stream = influxDBClient.queryPoints(sql)) {
+                List<PointValues> list = stream.map(this::buildData).toList();
                 long elapsed = System.currentTimeMillis() - start;
-                log.info("Query executed: {} in {} ms with status {}", sql, elapsed, status);
+                log.info("Query succeeded in {} ms on attempt #{}: {} rows returned",
+                        elapsed, context.getRetryCount() + 1, list.size());
+                return list;
             }
         });
+    }
+
+    /**
+     * Dummy method to simulate processing of point values.
+     *
+     * @param pointValues the point values to process
+     * @return the processed point values
+     */
+    private PointValues buildData(PointValues pointValues) {
+        log.debug("building point values: {}", pointValues);
+        return pointValues;
     }
 }
