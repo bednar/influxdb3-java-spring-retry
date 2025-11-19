@@ -10,7 +10,7 @@ This project demonstrates how to integrate the [influxdb3‑java](https://github
 - **Lombok** – annotations like `@RequiredArgsConstructor` and `@Slf4j` reduce boiler‑plate.
 - **Configuration by annotations** – a `@Configuration` class declares beans for the InfluxDB client and retry template using `@Bean`.  No XML configuration is required.
 - **REST Controller** – a simple `@RestController` exposes the `/api/query` endpoint.  A `q` request parameter supplies the SQL to execute and the endpoint returns a number of rows. 
-- **Stress test script** – a POSIX shell script under `scripts/` repeatedly calls the REST endpoint.  It can be used to generate load and observe memory behaviour.
+- **Stress test script** – a zsh script under `scripts/` that repeatedly calls the REST endpoint. It prints a timestamp before each request and reports curl/HTTP errors. It also supports configurable concurrency.
 
 ## Requirements
 
@@ -70,17 +70,37 @@ Example:
 curl -G --data-urlencode "q=SELECT time,location,value FROM temperature LIMIT 10" http://localhost:8080/api/query
 ```
 
-The response will be a number of rows.
+The response will be a number representing the count of rows returned by the query.
 
 ## Stress Test Script
 
-To generate repeated load against the endpoint you can use the provided script:
+A helper script at `scripts/stress_test.sh` can generate repeated load against the endpoint.
+
+Features:
+- Prints a timestamp before each call.
+- Reports errors clearly:
+  - network/curl failures as `CURL_ERROR (exit N)`
+  - HTTP errors (status >= 400) as `HTTP_ERROR <code>: <body>`
+- Configurable interval via `DELAY` (seconds, default 1).
+- Configurable parallelism via the 3rd argument or `CONCURRENCY` environment variable.
+
+Usage:
 
 ```bash
-/bin/zsh scripts/stress_test.sh "http://localhost:8080/api/query" "SELECT time, location, value FROM temperature LIMIT 10"
+# single stream
+zsh scripts/stress_test.sh "http://localhost:8080/api/query" "SELECT 1"
+
+# faster rate using env var
+DELAY=0.2 zsh scripts/stress_test.sh "http://localhost:8080/api/query" "SELECT 1"
+
+# 10 parallel streams (via arg)
+zsh scripts/stress_test.sh "http://localhost:8080/api/query" "SELECT 1" 10
+
+# 5 parallel streams (via env var)
+CONCURRENCY=5 zsh scripts/stress_test.sh "http://localhost:8080/api/query" "SELECT 1"
 ```
 
-It calls the endpoint once per second by default.  Set the `DELAY` environment variable to change the interval.
+Stop with Ctrl-C; the script will terminate all worker processes.
 
 ## License
 
