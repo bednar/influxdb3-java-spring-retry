@@ -13,11 +13,11 @@
     <!-- Set Java and Spring Boot versions -->
     <properties>
         <java.version>17</java.version>
-        <!-- Use the latest Spring Boot 3.5.x release (31 May 2025) -->
+        <!-- Use the latest Spring Boot 3.5.x release -->
         <spring-boot.version>3.5.7</spring-boot.version>
     </properties>
 
-    <!-- Import the Spring Boot dependency BOM -->
+    <!-- Import the Spring Boot dependency BOM -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -31,7 +31,7 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring Web starter to expose REST endpoints -->
+        <!-- Spring Web starter to expose REST endpoints -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -49,7 +49,13 @@
             <artifactId>spring-retry</artifactId>
         </dependency>
 
-        <!-- InfluxDB 3 Java client (v1.6.0 is the latest available version as of Nov 2025【342414005464629†L40-L46】) -->
+        <!-- AOP support for Spring Retry -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
+        <!-- InfluxDB 3 Java client -->
         <dependency>
             <groupId>com.influxdb</groupId>
             <artifactId>influxdb3-java</artifactId>
@@ -80,7 +86,7 @@
 
     <build>
         <plugins>
-        	<!-- Spring Boot Maven plugin -->
+        	<!-- Spring Boot Maven plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
