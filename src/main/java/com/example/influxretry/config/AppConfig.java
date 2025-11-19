@@ -1,8 +1,9 @@
 package com.example.influxretry.config;
 
-import com.influxdb.v3.client.InfluxDBClient;
-import com.influxdb.v3.client.config.ClientConfig;
-import com.influxdb.v3.client.InfluxDBApiException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.arrow.flight.CallStatus;
@@ -19,10 +20,9 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
+import com.influxdb.v3.client.InfluxDBApiException;
+import com.influxdb.v3.client.InfluxDBClient;
+import com.influxdb.v3.client.config.ClientConfig;
 
 /**
  * Configuration class that defines beans for the InfluxDB client and retry behaviour.
@@ -75,7 +75,10 @@ public class AppConfig {
                 .queryTimeout(Duration.of(readTimeout, ChronoUnit.MILLIS))
                 .writeTimeout(Duration.of(writeTimeout, ChronoUnit.MILLIS))
                 .build();
-        return InfluxDBClient.getInstance(clientConfig);
+        InfluxDBClient client = InfluxDBClient.getInstance(clientConfig);
+
+        // wrap client with metrics-logging decorator
+        return new com.example.influxretry.influx.InfluxV3QueryExecutionMetricsLogger(client);
     }
 
     /**

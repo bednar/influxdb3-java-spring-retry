@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.influxdb.v3.client.InfluxDBClient;
 import com.influxdb.v3.client.PointValues;
+import com.influxdb.v3.client.internal.GrpcCallOptions;
+import com.influxdb.v3.client.query.QueryOptions;
 
 /**
  * Service that encapsulates retry logic for executing SQL queries against InfluxDB.
@@ -36,12 +38,13 @@ public class QueryService {
      */
     public List<PointValues> queryWithRetry(String sql) {
         return retryTemplate.execute(context -> {
-            long start = System.currentTimeMillis();
-            try (Stream<PointValues> stream = influxDBClient.queryPoints(sql)) {
+
+            QueryOptions queryOptions = new QueryOptions(null, null);
+            queryOptions.setGrpcCallOptions(new GrpcCallOptions.Builder().build());
+
+            try (Stream<PointValues> stream = influxDBClient.queryPoints(sql, queryOptions)) {
                 List<PointValues> list = stream.map(this::buildData).toList();
-                long elapsed = System.currentTimeMillis() - start;
-                log.info("Query succeeded in {} ms on attempt #{}: {} rows returned",
-                        elapsed, context.getRetryCount() + 1, list.size());
+                log.info("Query succeeded on attempt #{}: {} rows returned", context.getRetryCount() + 1, list.size());
                 return list;
             }
         });
