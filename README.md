@@ -16,45 +16,45 @@ This project demonstrates how to integrate the [influxdb3‑java](https://github
 
 - **Java 17 (tested)** or later. This project is built and tested with JDK 17 (for example Eclipse Temurin / OpenJDK).
 - Maven (or use the Maven Wrapper provided by your IDE).
-- An InfluxDB 3 instance.  The database URL, token and name must be supplied as environment variables or system properties (see below).
+- An InfluxDB 3 instance. The database URL, token and name must be supplied as environment variables (see below).
 
 ## Configuration
 
-Configuration values are defined in `src/main/resources/application.yml` and can be overridden using environment variables or Java system properties.  At minimum you must provide:
+Configuration values are defined in `src/main/resources/application.yml`. Override them by exporting environment variables before starting the application. At minimum set:
 
-| Property                 | Environment variable     | Description                                        |
-|--------------------------|--------------------------|----------------------------------------------------|
-| `influxdb.url`           | `INFLUXDB_URL`           | Base URL of your InfluxDB 3 cluster                |
-| `influxdb.token`         | `INFLUXDB_TOKEN`         | Database token with read permissions               |
-| `influxdb.database`      | `INFLUXDB_DATABASE`      | Name of the database to query                      |
-| `influxdb.read-timeout`  | `INFLUXDB_READ_TIMEOUT`  | Query timeout in milliseconds (default 90000)      |
-| `influxdb.write-timeout` | `INFLUXDB_WRITE_TIMEOUT` | Write timeout in milliseconds (default 90000)      |
-| `retry.initialInterval`  | `RETRY_INITIAL_INTERVAL` | Initial delay before retrying (ms)                 |
-| `retry.multiplier`       | `RETRY_MULTIPLIER`       | Multiplier used by the exponential back‑off policy |
-| `retry.maxInterval`      | `RETRY_MAX_INTERVAL`     | Maximum back‑off delay (ms)                        |
-| `server.port`            | `SERVER_PORT`            | HTTP port (default 8080)                           |
+| Environment variable     | Description                                        |
+|--------------------------|----------------------------------------------------|
+| `INFLUXDB_URL`           | Base URL of your InfluxDB 3 cluster                |
+| `INFLUXDB_TOKEN`         | Database token with read permissions               |
+| `INFLUXDB_DATABASE`      | Name of the database to query                      |
+| `INFLUXDB_READ_TIMEOUT`  | Query timeout in milliseconds (default 90000)      |
+| `INFLUXDB_WRITE_TIMEOUT` | Write timeout in milliseconds (default 90000)      |
+| `RETRY_INITIAL_INTERVAL` | Initial delay before retrying (ms)                 |
+| `RETRY_MULTIPLIER`       | Multiplier used by the exponential back‑off policy |
+| `RETRY_MAX_INTERVAL`     | Maximum back‑off delay (ms)                        |
+| `SERVER_PORT`            | HTTP port (default 8080)                           |
 
-You can set these variables in your shell before running the application or pass them as `-D` system properties.
+Export variables in your shell before running the application, for example:
+
+```bash
+export INFLUXDB_URL="https://your-cluster.example" \
+       INFLUXDB_TOKEN="your-token" \
+       INFLUXDB_DATABASE="mydb" \
+       SERVER_PORT=8080
+```
 
 ## Building and Running
 
-This is a standard Maven project.  To build the JAR:
+This is a standard Maven project. To start the application directly (without building a standalone JAR first) export the needed environment variables and use the Spring Boot Maven plugin:
 
 ```bash
-mvn clean package
+INFLUXDB_URL="https://us-east-1-1.aws.cloud2.influxdata.com" \
+INFLUXDB_TOKEN="my-token" \
+INFLUXDB_DATABASE="my-db" \
+mvn spring-boot:run -Dspring-boot.run.jvmArguments="--add-opens=java.base/java.nio=ALL-UNNAMED"
 ```
 
-After a successful build the jar will be located in the `target/` directory.  Start the application with your InfluxDB credentials, for example:
-
-```bash
-java \
-  -Dinfluxdb.url=${INFLUXDB_URL} \
-  -Dinfluxdb.token=${INFLUXDB_TOKEN} \
-  -Dinfluxdb.database=${INFLUXDB_DATABASE} \
-  -jar target/influxdb3-java-spring-retry-0.0.1-SNAPSHOT.jar
-```
-
-Alternatively you can define the corresponding environment variables and omit the `-D` options.
+The `--add-opens` argument ensures access to internal NIO classes if required by Arrow or native memory operations.
 
 ## REST Endpoint
 
