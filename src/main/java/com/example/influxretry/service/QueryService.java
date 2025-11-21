@@ -36,28 +36,26 @@ public class QueryService {
      * @param sql SQL query to execute
      * @return list of rows returned by the query
      */
-    public List<PointValues> queryWithRetry(String sql) {
+    public <R> R queryWithRetry(String sql, QueryService.StreamHandler<R> handler) {
         return retryTemplate.execute(context -> {
 
             QueryOptions queryOptions = new QueryOptions(null, null);
             queryOptions.setGrpcCallOptions(new GrpcCallOptions.Builder().build());
 
-            try (Stream<PointValues> stream = influxDBClient.queryPoints(sql, queryOptions)) {
-                List<PointValues> list = stream.map(this::buildData).toList();
-                log.info("Query succeeded on attempt #{}: {} rows returned", context.getRetryCount() + 1, list.size());
-                return list;
+            try (Stream<PointValues> resultStream = influxDBClient.queryPoints(sql, queryOptions)) {
+                R result = handler.apply(resultStream);
+                log.info("Query succeeded on attempt #{}", context.getRetryCount() + 1);
+                return result;
             }
         });
     }
 
     /**
-     * Dummy method to simulate processing of point values.
+     * Functional interface for handling a stream of PointValues and returning a result.
      *
-     * @param pointValues the point values to process
-     * @return the processed point values
+     * @param <R> the type of the result
      */
-    private PointValues buildData(PointValues pointValues) {
-        log.debug("building point values: {}", pointValues);
-        return pointValues;
+    public interface StreamHandler<R> {
+        R apply(Stream<PointValues> resultStream);
     }
 }

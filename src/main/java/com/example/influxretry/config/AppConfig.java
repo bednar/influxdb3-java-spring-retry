@@ -74,6 +74,7 @@ public class AppConfig {
                 .database(database)
                 .queryTimeout(Duration.of(readTimeout, ChronoUnit.MILLIS))
                 .writeTimeout(Duration.of(writeTimeout, ChronoUnit.MILLIS))
+                .disableGRPCCompression(true)
                 .build();
         InfluxDBClient client = InfluxDBClient.getInstance(clientConfig);
 
