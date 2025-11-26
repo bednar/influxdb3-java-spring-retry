@@ -8,17 +8,21 @@ import com.google.j2objc.annotations.Property;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.arrow.memory.OutOfMemoryException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.influxdb.v3.client.PointValues;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +47,8 @@ public class QueryController {
 
     @Value("${server.shutdown}")
     private String shutdownType;
+
+    private boolean throwException = false;
 
     /**
      * Execute a SQL query against InfluxDB and return the number of rows.
@@ -113,6 +119,19 @@ public class QueryController {
         return "Not found " + name + "\n";
     }
 
+    @GetMapping("/destroy")
+    public String destroyInflux(){
+        applicationContext.getAutowireCapableBeanFactory()
+            .destroyBean(applicationContext.getBean(Influxdb3JavaSpringRetryApplication.class));
+        return "Destroyed\n";
+    }
+
+    @GetMapping("/exception")
+    public String exception() {
+        this.throwException = true;
+        return "Will throw exception\n";
+    }
+
     /**
      * Return a ledger of results from queries
      *
@@ -159,6 +178,10 @@ public class QueryController {
     private PointValues buildData(PointValues pointValues) {
         log.debug("building point values: {}", pointValues);
    //     memoryHog.add(pointValues);
+        if (throwException) {
+            throwException = false;
+            throw new RuntimeException("random exception");
+        }
         return pointValues;
     }
 }
